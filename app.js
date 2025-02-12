@@ -71,6 +71,8 @@ app.post('/api/v1/upload', upload.single('file'), async (req, res) => {
 		const randomDelay = Math.random() * 2000;
 		await new Promise(resolve => setTimeout(resolve, randomDelay));
 
+		console.log(req.file.filename, nameField);
+
 		// Send response
 		res.json({
 			message: 'File uploaded successfully',
