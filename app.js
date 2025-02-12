@@ -5,11 +5,13 @@ import path from 'path';
 
 const app = express();
 const PORT = 3000;
+const uploadDir = 'uploads';
+
+app.use(express.json())
 
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		const uploadDir = 'uploads';
 		if (!fs.existsSync(uploadDir)) {
 			fs.mkdirSync(uploadDir);
 		}
@@ -37,15 +39,35 @@ app.post('/api/v1/upload', upload.single('file'), async (req, res) => {
 		}
 
 		// Read JSON content if it's a JSON file
+		// Read the "name" field from the body
 		let nameField = null;
-		if (fileExt === '.json') {
-			const fileContent = fs.readFileSync(req.file.path, 'utf8');
-			const jsonData = JSON.parse(fileContent);
-			nameField = jsonData.name || null;
+		if (req.body && req.body.name) {
+			nameField = req.body.name;
+		}
+
+		// Ensure the upload directory has no more than 20 files
+		const files = fs.readdirSync(uploadDir);
+		if (files.length > 20) {
+			// Sort files by creation time (oldest first)
+			const filesWithStats = files.map(file => {
+				const filePath = path.join(uploadDir, file);
+				return {
+					file,
+					createdAt: fs.statSync(filePath).birthtime
+				};
+			});
+			filesWithStats.sort((a, b) => a.createdAt - b.createdAt);
+
+			// Delete the oldest file if there are more than 20
+			const fileToDelete = filesWithStats[0].file;
+			const filePathToDelete = path.join(uploadDir, fileToDelete);
+			fs.unlinkSync(filePathToDelete);
+			console.log(`Deleted oldest file: ${fileToDelete}`);
 		}
 
 		// Simulate delay
-		await new Promise(resolve => setTimeout(resolve, 2000));
+		const randomDelay = Math.random() * 2000;
+		await new Promise(resolve => setTimeout(resolve, randomDelay));
 
 		// Send response
 		res.json({
