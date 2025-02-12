@@ -38,11 +38,13 @@ app.post('/api/v1/upload', upload.single('file'), async (req, res) => {
 			return res.status(400).json({ error: 'Invalid file type' });
 		}
 
-		// Read JSON content if it's a JSON file
 		// Read the "name" field from the body
 		let nameField = null;
 		if (req.body && req.body.name) {
 			nameField = req.body.name;
+		}
+		else {
+			return res.status(400).json({ error: 'No name field provided' });
 		}
 
 		// Ensure the upload directory has no more than 20 files
