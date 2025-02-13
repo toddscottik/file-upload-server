@@ -89,6 +89,11 @@ app.post('/api/v1/upload', (req, res) => {
 
 			console.log(new Date(), `filename=${req.file.filename}`, `name=${nameField}`, clientIp, userAgent);
 
+			const randomError = Math.random();
+			if (randomError < 0.1) {
+				res.status(400).json({error: 'RandomError: Lucky you, it\'s a random error on server with 10% chance'});
+			}
+
 			// Send response
 			setTimeout(() => {
 				res.json({
