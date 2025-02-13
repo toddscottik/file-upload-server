@@ -43,7 +43,7 @@ Response
      {
        "message": "File uploaded successfully",
        "filename": "1234567890123_filename.json",
-       "nameField": "ExampleName",
+       "name": "ExampleName",
        "timestamp": "2025-02-13T12:00:00Z"
      }  
      ```
