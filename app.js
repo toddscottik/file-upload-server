@@ -29,8 +29,9 @@ const upload = multer({
 }).single('file');
 
 app.post('/api/v1/upload', (req, res) => {
-
+	console.log("GET REQUEST BEFORE UPLOAD");
 	upload(req, res, (err) => {
+		console.log("GET REQUEST");
 		if (err) {
 			if (err.code === 'LIMIT_FILE_SIZE') {
 				return res.status(400).json({error: 'Uploaded file exceeds the 1 KB size limit'});
