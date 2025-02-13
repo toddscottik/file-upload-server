@@ -18,7 +18,8 @@ const storage = multer.diskStorage({
 		cb(null, uploadDir);
 	},
 	filename: (req, file, cb) => {
-		cb(null, `${Date.now()}_${file.originalname}`);
+		const encodedFileName = Buffer.from(file.originalname, 'binary').toString('utf-8');
+		cb(null, `${Date.now()}_${encodedFileName}`);
 	}
 });
 
@@ -71,13 +72,16 @@ app.post('/api/v1/upload', upload.single('file'), async (req, res) => {
 		const randomDelay = Math.random() * 2000;
 		await new Promise(resolve => setTimeout(resolve, randomDelay));
 
-		console.log(req.file.filename, nameField);
+		const clientIp = req.ip || req.connection.remoteAddress;
+		const userAgent = req.get('User-Agent');
+
+		console.log(new Date(), `filename=${req.file.filename}`, `name=${nameField}`, clientIp, userAgent);
 
 		// Send response
 		res.json({
 			message: 'File uploaded successfully',
 			filename: req.file.filename,
-			nameField: nameField,
+			name: nameField,
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
