@@ -34,7 +34,11 @@ app.post('/api/v1/upload', (req, res) => {
 		if (err) {
 			if (err.code === 'LIMIT_FILE_SIZE') {
 				return res.status(400).json({error: 'Uploaded file exceeds the 1 KB size limit'});
-			} else {
+			} else
+			if (err.message === "000") {
+				return res.status(400).json({error: 'No name field provided'});
+			}
+			else {
 				return res.status(500).json({error: 'File upload error', details: err.message});
 			}
 		}
@@ -59,6 +63,13 @@ app.post('/api/v1/upload', (req, res) => {
 			} else {
 				return res.status(400).json({error: 'No name field provided'});
 			}
+			nameField = req.body.name.trim();
+			const safeName = nameField.replace(/[^a-zA-Zа-яА-ЯёЁ0-9_-]/g, "_");
+			const oldPath = path.join(uploadDir, req.file.filename);
+			const newFilename = `${safeName}_${req.file.filename}`;
+			const newPath = path.join(uploadDir, newFilename);
+			req.file.filename = newFilename;
+			fs.renameSync(oldPath, newPath);
 
 			// Ensure the upload directory has no more than 20 files
 			const files = fs.readdirSync(uploadDir);
