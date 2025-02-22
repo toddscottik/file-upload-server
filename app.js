@@ -8,6 +8,7 @@ const PORT = 3000;
 const uploadDir = 'uploads';
 
 app.use(express.json())
+app.enable('trust proxy');
 
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
@@ -29,17 +30,18 @@ const upload = multer({
 }).single('file');
 
 app.post('/api/v1/upload', (req, res) => {
-	console.log("GET REQUEST BEFORE UPLOAD");
 	upload(req, res, (err) => {
-		console.log("GET REQUEST");
 		if (err) {
 			if (err.code === 'LIMIT_FILE_SIZE') {
+				console.warn('ERR Status 400: Uploaded file exceeds the 1 KB size limit');
 				return res.status(400).json({error: 'Uploaded file exceeds the 1 KB size limit'});
 			} else
 			if (err.message === "000") {
+				console.warn('ERR Status 400: No name field provided');
 				return res.status(400).json({error: 'No name field provided'});
 			}
 			else {
+				console.warn('ERR Status 500: File upload error');
 				return res.status(500).json({error: 'File upload error', details: err.message});
 			}
 		}
@@ -47,6 +49,7 @@ app.post('/api/v1/upload', (req, res) => {
 		try {
 			// Check if file is provided
 			if (!req.file) {
+				console.warn('ERR Status 400: No file upload found.');
 				return res.status(400).json({error: 'No file uploaded'});
 			}
 
@@ -54,6 +57,7 @@ app.post('/api/v1/upload', (req, res) => {
 			const allowedExtensions = ['.json', '.txt', '.csv'];
 			const fileExt = path.extname(req.file.originalname).toLowerCase();
 			if (!allowedExtensions.includes(fileExt)) {
+				console.warn(`ERR Status 400: ${fileExt} extension is not allowed`);
 				return res.status(400).json({error: 'Invalid file type'});
 			}
 
@@ -62,6 +66,7 @@ app.post('/api/v1/upload', (req, res) => {
 			if (req.body && req.body.name) {
 				nameField = req.body.name;
 			} else {
+				console.warn("ERR Status 400: No name field provided")
 				return res.status(400).json({error: 'No name field provided'});
 			}
 			nameField = req.body.name.trim();
@@ -103,12 +108,14 @@ app.post('/api/v1/upload', (req, res) => {
 
 			const randomError = Math.random();
 			if (randomError < 0.1) {
-				res.status(400).json({error: 'RandomError: Lucky you, it\'s a random error on server with 10% chance'});
+				console.warn("ERR Status 418: I\'m a teapot Random Error");
+				return res.status(418).json({error: 'I\'m a teapot RandomError: Lucky you, it\'s a random error on server with 10% chance'});
 			}
 
 			// Send response
 			setTimeout(() => {
-				res.json({
+				console.log(`Successful, send with delay of ${Math.round(randomDelay)} milliseconds`);
+				return res.json({
 					message: 'File uploaded successfully',
 					filename: req.file.filename,
 					name: nameField,
@@ -116,7 +123,7 @@ app.post('/api/v1/upload', (req, res) => {
 				})
 			}, randomDelay);
 		} catch (error) {
-			res.status(500).json({error: 'Internal Server Error', details: error.message});
+			return res.status(500).json({error: 'Internal Server Error', details: error.message});
 		}
 	});
 });
