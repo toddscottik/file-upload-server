@@ -31,6 +31,9 @@ const upload = multer({
 
 app.post('/api/v1/upload', (req, res) => {
 	upload(req, res, (err) => {
+		const clientIp = req.ip || req.connection.remoteAddress;
+		const userAgent = req.get('User-Agent');
+		console.log(`${clientIp}, ${userAgent}`);
 		if (err) {
 			if (err.code === 'LIMIT_FILE_SIZE') {
 				console.warn('ERR Status 400: Uploaded file exceeds the 1 KB size limit');
@@ -98,13 +101,10 @@ app.post('/api/v1/upload', (req, res) => {
 			}
 
 			// Simulate delay
-			const randomDelay = Math.random() * 2000;
+			const randomDelay = Math.random() * 10000;
 			// await new Promise(resolve => setTimeout(resolve, randomDelay));
 
-			const clientIp = req.ip || req.connection.remoteAddress;
-			const userAgent = req.get('User-Agent');
-
-			console.log(new Date(), `filename=${req.file.filename}`, `name=${nameField}`, clientIp, userAgent);
+			console.log(new Date(), `filename=${req.file.filename}`, `name=${nameField}`);
 
 			const randomError = Math.random();
 			if (randomError < 0.1) {
