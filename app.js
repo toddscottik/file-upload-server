@@ -2,12 +2,13 @@ import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
+import cors from 'cors';
 
 const app = express();
 const PORT = 3000;
 const uploadDir = 'uploads';
 
-app.use(express.json())
+app.use(cors({origin: "*"}), express.json())
 app.enable('trust proxy');
 
 // Set up storage for uploaded files
