@@ -37,8 +37,8 @@ app.post('/api/v1/upload', (req, res) => {
 		console.log(`${clientIp}, ${userAgent}`);
 		if (err) {
 			if (err.code === 'LIMIT_FILE_SIZE') {
-				console.warn('ERR Status 400: Uploaded file exceeds the 1 KB size limit');
-				return res.status(400).json({error: 'Uploaded file exceeds the 1 KB size limit'});
+				console.warn('ERR Status 400: Uploaded file exceeds the 1 GB size limit');
+				return res.status(400).json({error: 'Uploaded file exceeds the 1 GB size limit'});
 			} else
 			if (err.message === "000") {
 				console.warn('ERR Status 400: No name field provided');
@@ -58,7 +58,7 @@ app.post('/api/v1/upload', (req, res) => {
 			}
 
 			// Check file extension
-			const allowedExtensions = ['.json', '.txt', '.csv'];
+			const allowedExtensions = ['.csv'];
 			const fileExt = path.extname(req.file.originalname).toLowerCase();
 			if (!allowedExtensions.includes(fileExt)) {
 				console.warn(`ERR Status 400: ${fileExt} extension is not allowed`);
